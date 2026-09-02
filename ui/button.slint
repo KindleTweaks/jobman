@@ -1,0 +1,36 @@
+export component Button { 
+    in property <string> text: "Button";
+    in property <bool> disabled: false;
+
+    in property <length> root-height;
+    callback clicked(); 
+
+    height: root-height * 0.1;
+    
+    TouchArea {
+        enabled: !root.disabled;
+        clicked => { if(!root.disabled) { root.clicked(); } }
+
+        Rectangle {
+            border-color: root.disabled ? #4b5563 : black;
+            border-width: 2px;
+            border-radius: 12px;
+            height: root-height * 0.1; 
+            
+            VerticalLayout {
+                padding-left: root-height * 0.02;
+                padding-right: root-height * 0.02;
+                alignment: center;
+
+                Text {
+                    font-size: root-height * 0.03;
+                    font-family: "Libre Baskerville";
+                    text: root.text;
+                    color: root.disabled ? #4b5563 : black;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,16 @@
+[package]
+name = "jobman"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+slint = { version = "1.17.1", default-features = false, features = ["compat-1-2", "std", "renderer-software"] }
+slint-backend-kindle = "0.5.1"
+fontique = { version = "=0.10.0", features = ["fontconfig-dlopen"] }
+
+[target.'cfg(not(all(target_os = "linux", target_arch = "arm")))'.dependencies]
+slint = { version = "1.17.1", features = ["backend-default"] }
+
+[build-dependencies]
+slint-build = "1.17.1"
+

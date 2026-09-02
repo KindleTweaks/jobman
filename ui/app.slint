@@ -1,0 +1,230 @@
+import { Card } from "card.slint";
+import { Button } from "button.slint";
+
+/*
+    This project scales relative to root.height, 
+    so long as all proportions remain sensible in a portrait position as well as as a square one (Oasis).
+*/
+
+export component AppWindow inherits Window {
+    background: white;
+
+    in property <bool> ota-status: false;
+    private property <string> view: "home";
+    in-out property <bool> show-error: false;
+    in-out property <string> error: "An unknown error occurred. Please retry at another time.";
+
+    callback quit();
+    callback toggle_ota();
+
+    //Header content
+    Rectangle {
+        x: root.width - self.width - root.width * 0.03;
+        y: root.height * 0.02;
+        width: root.width * 0.1;
+        height: root.width * 0.1;
+        border-width: root.width * 0.005;
+        border-color: black;
+        border-radius: root.width * 0.015;
+        background: quit-touch.pressed ? #cccccc : white;
+
+        quit-touch := TouchArea {
+            clicked => { 
+                if view == "home" { root.quit(); }
+                if view != "home" { root.view = "home" } 
+            }
+        }
+
+        VerticalLayout {
+            alignment: center;
+
+            HorizontalLayout {
+                alignment: center;
+                if view == "home": Text {
+                    text: "×";
+                    font-size: root.width * 0.07;
+                    font-family: "Libre Baskerville"; //Inter ruins centering.
+                    color: black;
+                    font-weight: 800; 
+                }
+
+                if view != "home": Text {
+                    text: "←";
+                    font-family: "Libre Baskerville";
+                    font-size: root.width * 0.06;
+                    color: black;
+                }
+            }
+        }
+    }
+
+    VerticalLayout {
+        height: root.height * 0.05;
+        y: root.height * 0.09;
+        alignment: center;
+        spacing: root.height * 0.015; 
+
+        Text {
+            x: 0;
+            width: parent.width;
+            text: "Jobman";
+            font-size: root.width * 0.15;
+            font-family: "Libre Baskerville";
+            color: black;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            x: 0;
+            width: parent.width;
+            text: "Your Friendly Jailbreaking Manager";
+            font-family: "Inter";
+            font-size: root.width * 0.04;
+            color: black;
+            horizontal-alignment: center;
+        }
+    }
+
+    //Main content
+    Rectangle {
+        x: root.width * 0.05; //Left margin 
+        width: root.width * 0.9; //100% - 5% ^ - 5%.
+        y: root.height * 0.4;
+
+        if view == "home": VerticalLayout {
+            spacing: root.height * 0.02; 
+
+            Card {
+               root-height: root.height;
+               title: "Update Blocking";
+               description: "Manage the enabling & disabling of OTA binaries";
+               clicked => { root.view = "update-blocking" }
+            }
+
+            Card {
+               root-height: root.height;
+               title: "Environment Update";
+               description: "Update the jailbreaking environment";
+            }
+
+            Card {
+               root-height: root.height;
+               title: "Battery Health";
+               description: "Automatic battery checking utility";
+            }
+
+            Card {
+               root-height: root.height;
+               title: "Update Jobman";
+               description: "Check for jailbreak manager updates";
+            }
+        }
+
+        if view == "update-blocking": update-blocking := VerticalLayout { 
+            height: root.height * 0.27;
+            y: root.height * 0.07;
+            alignment: center;
+            spacing: root.height * 0.02; 
+
+            private property <bool> renaming: false;
+
+            status := Text {
+                color: black;
+                wrap: word-wrap;
+                width: 100%;
+                font-size: root.width * 0.035;
+                font-family: "Inter"; 
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                text: parent.renaming ? "Please wait..." : (root.ota-status ? "OTA updates are currently enabled." : "OTA updates are currently disabled.");
+            }
+
+            HorizontalLayout {
+                alignment: center;
+                Button {
+                    root-height: root.height;
+                    text: root.ota-status ? "Disable OTA Updates" : "Enable OTA Updates";
+                    width: root.height * 0.5;
+                    disabled: update-blocking.renaming;
+                    clicked => { 
+                        update-blocking.renaming = true;
+                        root.toggle_ota();
+                    }
+                }
+            }
+        
+            Text {
+                text: root.ota-status ? "This will keep your device safe from the possibility of Amazon updates." : "Warning! This will reboot your device, and enable the possibility of Amazon updates.";
+                color: #4b5563;
+                wrap: word-wrap;
+                width: 100%;
+                font-size: root.width * 0.03;
+                font-family: "Inter"; 
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+
+    Text {
+        x: 0;
+        y: root.height * 0.95;
+        width: parent.width;
+        text: "Made by KindleTweaks";
+        font-size: root.width * 0.03;
+        color: #4b5563;
+        horizontal-alignment: center;
+    }
+    
+    //Error Dialog
+    if root.show-error: TouchArea {
+        clicked => {}
+
+        Rectangle {
+            background: #000000aa; 
+        }
+
+        VerticalLayout {
+            alignment: center;
+            HorizontalLayout {
+                alignment: center;
+                Rectangle {
+                    background: white;
+                    border-radius: root.width * 0.05;
+                    width: root.width * 0.8;
+                    border-width: root.width * 0.005;
+                    border-color: black;
+
+                    VerticalLayout {
+                        padding: root.width * 0.08;
+                        spacing: root.height * 0.05;
+
+                        Text {
+                            text: "Error Occurred";
+                            font-family: "Libre Baskerville";
+                            font-size: root.width * 0.07;
+                            color: black;
+                        }
+
+                        Text {
+                            text: root.error;
+                            font-family: "Inter";
+                            color: black;
+                            font-size: root.width * 0.03;
+                            wrap: word-wrap;
+                            vertical-alignment: center;
+                        }
+
+                        Button {
+                            root-height: root.height;
+                            text: "Dismiss";
+                            clicked => {
+                                root.show-error = false;
+                            }
+                        }
+                    }
+                }
+            }   
+        }
+    }
+}

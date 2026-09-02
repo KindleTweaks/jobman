@@ -1,0 +1,52 @@
+export component Card { 
+    in property <string> title: "Default Title";
+    in property <string> description: "Default Description";
+
+    in property <length> root-height;
+    callback clicked(); 
+
+    height: root-height * 0.1;
+    
+    TouchArea {
+        clicked => { root.clicked(); }
+        
+        Rectangle {
+            border-color: black;
+            border-width: 2px;
+            border-radius: 12px;
+            height: root-height * 0.1; 
+
+            HorizontalLayout {
+                padding-left: root-height * 0.02;
+                padding-right: root-height * 0.02;
+                alignment: space-between;
+
+                VerticalLayout {
+                    padding-top: root-height * 0.012; 
+
+                    Text {
+                        font-size: root-height * 0.03;
+                        font-family: "Libre Baskerville";
+                        text: root.title;
+                        color: black;
+                    }
+
+                    Text {
+                        font-size: root-height * 0.02;
+                        font-family: "Inter";
+                        text: root.description;
+                        color: #4b5563;
+                    }
+                }
+
+                Text {
+                    vertical-alignment: center;
+                    font-size: root-height * 0.03;
+                    text: ">";
+                    color: black;
+                    font-weight: 800;
+                }
+            }
+        }
+    }
+}
