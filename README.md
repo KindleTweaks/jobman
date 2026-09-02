@@ -7,6 +7,8 @@
 
 *Like [my](https://penguins184.xyz/) work? Consider donating or just starring my repo! :)*
 
+<img width="300" height="430" alt="image" src="https://github.com/user-attachments/assets/853365e6-0291-448d-8c64-a41b1deb9e3e" />
+
 ## Building
 
 Great thanks to [slint-kindle-backend](https://github.com/sverrejb/slint-kindle-backend).
