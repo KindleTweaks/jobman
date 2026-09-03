@@ -23,8 +23,19 @@ fn main() {
     backend.register_font_from_memory(BASKERVILLE).expect("Failed to Install Libre Baskerville!");
 
     app.set_ota_status(ota_status());
+    match battery_health() {
+        Ok(health) => {
+            app.set_battery_health(health);
+        }
 
-    let app_weak = app.as_weak(); //We do this so no boo-boos occur (memory leaks) (Slint docs said so)
+        Err(error_message) => {
+            app.set_error(error_message.into());
+            app.set_show_error(true);
+        }
+    }
+
+
+    let app_weak = app.as_weak(); //No memory leaks
     app.on_toggle_ota(move || {
         let app = app_weak.unwrap();
         
@@ -46,20 +57,21 @@ fn main() {
     app.run().expect("Event Loop Error!");
 }
 
+//UI backend
 fn ota_status() -> bool {
     Path::new("/usr/bin/otav3").try_exists().unwrap_or(false)
 }
 
-fn sh(cmd: &str, err: &str) -> Result<(), String> {
-    let status = Command::new("sh")
+fn sh(cmd: &str, err: &str) -> Result<String, String> {
+    let output = Command::new("sh")
         .args(["-c", cmd])
-        .status()
+        .output()
         .map_err(|e| format!("{err} (Process Error: {e})"))?; 
 
-    if status.success() {
-        Ok(())
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).into_owned())
     } else {
-        Err(format!("{err} (Exit Code: {})", status.code().unwrap_or(-1)))
+        Err(format!("{err} (Exit Code: {})", output.status.code().unwrap_or(-1)))
     }
 }
 
@@ -94,7 +106,7 @@ fn block_ota() -> Result<(), String> {
     let _ = sh("mntroot ro", "");
 
     Command::new("sh")
-        .args(["-c", "sleep 5 && reboot"])
+        .args(["-c", "sleep 3 && reboot"])
         .spawn()
         .map_err(|e| format!("Failed to reboot Kindle: {e}"))?;
 
@@ -124,9 +136,40 @@ fn enable_ota() -> Result<(), String> {
     let _ = sh("mntroot ro", ""); 
 
     Command::new("sh")
-        .args(["-c", "sleep 5 && reboot"])
+        .args(["-c", "sleep 3 && reboot"])
         .spawn()
         .map_err(|e| format!("Failed to reboot Kindle: {e}"))?;
 
     Ok(()) 
+}
+
+fn battery_health() -> Result<i32, String> {
+    let mah = sh("gasgauge-info -m", "Failed to retrieve battery mAh")?;
+    let capav = sh("lipc-get-prop com.lab126.powerd battLevel", "Failed to retrieve battery capacity")?;
+    let original_mah = sh("cat /sys/class/power_supply/bd*_bat/charge_full_design", "Failed to read battery initial capacity")?;
+
+    let mah: f64 = mah
+        .split_whitespace()
+        .next() //["num", "mAh"] <- first item (capacity)
+        .ok_or("Could not parse battery capacity")?
+        .parse()
+        .map_err(|_| "Could not parse battery capacity".to_string())?;
+
+    let mah = mah / 1000.0;
+
+    let capav: f64 = capav
+        .trim()
+        .parse()
+        .map_err(|_| "Could not parse battery percentage".to_string())?;
+
+    let original_mah: f64 = original_mah
+        .trim()
+        .parse()
+        .map_err(|_| "Could not parse original battery capacity".to_string())?;
+
+    let original_mah = original_mah / 1000.0;
+    let current = (mah / capav) * 100.0;
+    let health = (current / original_mah) * 100.0;
+
+    Ok(health.round() as i32)
 }

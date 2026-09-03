@@ -7,7 +7,7 @@ export component Button {
 
     height: root-height * 0.1;
     
-    TouchArea {
+    btn-touch := TouchArea {
         enabled: !root.disabled;
         clicked => { if(!root.disabled) { root.clicked(); } }
 
@@ -16,7 +16,8 @@ export component Button {
             border-width: 2px;
             border-radius: 12px;
             height: root-height * 0.1; 
-            
+            background: btn-touch.pressed ? #cccccc : white;
+
             VerticalLayout {
                 padding-left: root-height * 0.02;
                 padding-right: root-height * 0.02;

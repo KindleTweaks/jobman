@@ -1,0 +1,50 @@
+import { Button } from "../button.slint";
+
+export component BatteryHealth inherits Rectangle {
+    in property <length> root-height;
+    in property <int> battery-health: 100;
+
+    VerticalLayout {
+        height: root-height * 0.27;
+        y: root-height * 0.04;
+        alignment: center;
+        spacing: root-height * 0.02; 
+
+        Text {
+            color: black;
+            wrap: word-wrap;
+            width: 100%;
+            font-size: root-height * 0.027;
+            font-family: "Inter"; 
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            text: "Your estimated battery capacity is:";
+        }
+
+        Text {
+            color: black;
+            width: 100%;
+            font-size: root-height * 0.16;
+            font-weight: 700;
+            font-family: "Inter"; 
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            text: root.battery-health + "%";
+        }
+
+        HorizontalLayout {
+            Text {
+                text: "Measured using coulomb counting. This is not always completely accurate.";
+                color: #4b5563;
+                wrap: word-wrap;
+                font-size: root-height * 0.018;
+                font-family: "Inter"; 
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+                
+            padding-left: root-height * 0.05;
+            padding-right: root-height * 0.05;
+        }
+    }
+}

@@ -1,5 +1,7 @@
 import { Card } from "card.slint";
 import { Button } from "button.slint";
+import { UpdateBlocking } from "pages/update-blocking.slint";
+import { BatteryHealth } from "pages/battery-health.slint";
 
 /*
     This project scales relative to root.height, 
@@ -10,6 +12,8 @@ export component AppWindow inherits Window {
     background: white;
 
     in property <bool> ota-status: false;
+    in property <int> battery-health: 100;
+    private property <bool> ota-renaming: false;
     private property <string> view: "home";
     in-out property <bool> show-error: false;
     in-out property <string> error: "An unknown error occurred. Please retry at another time.";
@@ -111,6 +115,7 @@ export component AppWindow inherits Window {
                root-height: root.height;
                title: "Battery Health";
                description: "Automatic battery checking utility";
+               clicked => { root.view = "battery-health" }
             }
 
             Card {
@@ -120,49 +125,18 @@ export component AppWindow inherits Window {
             }
         }
 
-        if view == "update-blocking": update-blocking := VerticalLayout { 
-            height: root.height * 0.27;
-            y: root.height * 0.07;
-            alignment: center;
-            spacing: root.height * 0.02; 
-
-            private property <bool> renaming: false;
-
-            status := Text {
-                color: black;
-                wrap: word-wrap;
-                width: 100%;
-                font-size: root.width * 0.035;
-                font-family: "Inter"; 
-                horizontal-alignment: center;
-                vertical-alignment: center;
-                text: parent.renaming ? "Please wait..." : (root.ota-status ? "OTA updates are currently enabled." : "OTA updates are currently disabled.");
+        if view == "update-blocking": UpdateBlocking {
+            root-height: root.height;
+            ota-status: root.ota-status;
+            ota-renaming <=> root.ota-renaming;
+            toggle-ota => {
+                root.toggle_ota();
             }
+        }
 
-            HorizontalLayout {
-                alignment: center;
-                Button {
-                    root-height: root.height;
-                    text: root.ota-status ? "Disable OTA Updates" : "Enable OTA Updates";
-                    width: root.height * 0.5;
-                    disabled: update-blocking.renaming;
-                    clicked => { 
-                        update-blocking.renaming = true;
-                        root.toggle_ota();
-                    }
-                }
-            }
-        
-            Text {
-                text: root.ota-status ? "This will keep your device safe from the possibility of Amazon updates." : "Warning! This will reboot your device, and enable the possibility of Amazon updates.";
-                color: #4b5563;
-                wrap: word-wrap;
-                width: 100%;
-                font-size: root.width * 0.03;
-                font-family: "Inter"; 
-                horizontal-alignment: center;
-                vertical-alignment: center;
-            }
+        if view == "battery-health": BatteryHealth {
+            root-height: root.height;
+            battery-health: root.battery-health;
         }
     }
 
@@ -220,6 +194,7 @@ export component AppWindow inherits Window {
                             text: "Dismiss";
                             clicked => {
                                 root.show-error = false;
+                                root.ota-renaming = false; 
                             }
                         }
                     }

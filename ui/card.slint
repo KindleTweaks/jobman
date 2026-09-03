@@ -7,7 +7,7 @@ export component Card {
 
     height: root-height * 0.1;
     
-    TouchArea {
+    card-touch := TouchArea {
         clicked => { root.clicked(); }
         
         Rectangle {
@@ -15,6 +15,7 @@ export component Card {
             border-width: 2px;
             border-radius: 12px;
             height: root-height * 0.1; 
+            background: card-touch.pressed ? #cccccc : white;
 
             HorizontalLayout {
                 padding-left: root-height * 0.02;

@@ -1,0 +1,53 @@
+import { Button } from "../button.slint";
+
+export component UpdateBlocking inherits Rectangle {
+    in-out property <bool> ota-renaming: false;
+    in property <bool> ota-status: false;
+    in property <length> root-height;
+
+    callback toggle-ota();
+
+    VerticalLayout {
+        height: root-height * 0.27;
+        y: root-height * 0.07;
+        alignment: center;
+        spacing: root-height * 0.02;
+
+        Text {
+            color: black;
+            wrap: word-wrap;
+            width: 100%;
+            font-size: root-height * 0.027;
+            font-family: "Inter";
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            text: root.ota-renaming ? "Please wait..." : (root.ota-status ? "OTA updates are currently enabled." : "OTA updates are currently disabled.");
+        }
+
+        HorizontalLayout {
+            alignment: center;
+
+            Button {
+                root-height: root-height;
+                text: root.ota-status ? "Disable OTA Updates" : "Enable OTA Updates";
+                width: root-height * 0.5;
+                disabled: root.ota-renaming;
+                clicked => {
+                    root.ota-renaming = true;
+                    root.toggle-ota();
+                }
+            }
+        }
+
+        Text {
+            text: root.ota-status ? "This will keep your device safe from the possibility of Amazon updates." : "Warning! This will reboot your device, and enable the possibility of Amazon updates.";
+            color: #4b5563;
+            wrap: word-wrap;
+            width: 100%;
+            font-size: root.width * 0.03;
+            font-family: "Inter";
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+}
