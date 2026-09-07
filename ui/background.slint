@@ -1,0 +1,31 @@
+export component Background {
+    width: 100%;
+    height: 100%;
+
+    Rectangle {
+        property <length> dot-spacing: parent.height * 0.045;
+        background: #fff;
+
+        property <int> cols: Math.min(75, Math.ceil(parent.width / dot-spacing));
+        property <int> rows: Math.min(75, Math.ceil(parent.height / dot-spacing));
+
+        Rectangle {
+            width: 100%;
+            height: 100%;
+            clip: true; 
+
+            for r in rows: Rectangle {
+                y: r * dot-spacing;
+            
+                for c in cols: Rectangle {
+                    x: c * dot-spacing;
+                    y: 0px;
+                    width: parent.height * 0.005;   
+                    height: parent.height * 0.005;
+                    border-radius: parent.height * 0.5; 
+                    background: rgba(60, 60, 60, 20%);
+                }
+            }
+        }
+    }
+}

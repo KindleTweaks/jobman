@@ -23,6 +23,7 @@ fn main() {
     backend.register_font_from_memory(BASKERVILLE).expect("Failed to Install Libre Baskerville!");
 
     app.set_ota_status(ota_status());
+    app.set_wifi_status(wifi_status());
     match battery_health() {
         Ok(health) => {
             app.set_battery_health(health);
@@ -36,9 +37,10 @@ fn main() {
 
 
     let app_weak = app.as_weak(); //No memory leaks
+    let toggle_weak = app_weak.clone();
+
     app.on_toggle_ota(move || {
-        let app = app_weak.unwrap();
-        
+        let app = toggle_weak.unwrap();
         let status = app.get_ota_status();
         
         let result = if status {
@@ -51,6 +53,28 @@ fn main() {
             app.set_error(error_message.into());
             app.set_show_error(true);
         }
+    });
+
+    let update_weak = app_weak.clone();
+    app.on_update_environment(move || {
+        let app = update_weak.unwrap();
+        //For redraw 
+
+        let run_weak = update_weak.clone();
+        let _ = slint::invoke_from_event_loop(move || {
+            match update_env() {
+                Ok(_) => {
+                    let _ = Command::new("sh").args(["-c", "sleep 1 && reboot"]).spawn();
+                    std::process::exit(0);
+                }
+                Err(error_message) => {
+                    if let Some(ui) = run_weak.upgrade() {
+                        ui.set_error(error_message.into());
+                        ui.set_show_error(true);
+                    }
+                }
+            }
+        });
     });
 
     app.on_quit(|| std::process::exit(0));
@@ -143,6 +167,32 @@ fn enable_ota() -> Result<(), String> {
     Ok(()) 
 }
 
+fn wifi_status() -> bool {
+    if let Ok(con) = sh("lipc-get-prop com.lab126.wifid cmState", "WiFi check failed") {
+        con.trim() == "CONNECTED"
+    } else {
+        false
+    }
+}
+
+fn update_env() -> Result<(), String> {
+    sh("curl -L https://kindlemodding.org/jb.sh | RUN_MODE=2 sh", "Failed to curl and run jailbreak script")?;
+
+    Ok(())
+}
+
+fn original_mah_round(rough: f64) -> f64 {
+    let battery_intervals: Vec<f64> = vec![1350.0, 1300.0, 890.0, 245.0, 1000.0, 1500.0, 900.0, 1130.0, 1700.0, 1040.0, 3000.0, 1900.0, 2310.0, 4000.0];
+    let max_interval = battery_intervals.iter().copied().max_by(f64::total_cmp).unwrap_or(0.0); //In case retrieved mAh is invalid/faulty/new device comes out, round down to the largest without failing
+
+    battery_intervals
+        .iter()
+        .copied()
+        .filter(|&x| x >= rough)
+        .min_by(f64::total_cmp)
+        .unwrap_or(max_interval)
+}
+
 fn battery_health() -> Result<i32, String> {
     let mah = sh("gasgauge-info -m", "Failed to retrieve battery mAh")?;
     let capav = sh("lipc-get-prop com.lab126.powerd battLevel", "Failed to retrieve battery capacity")?;
@@ -155,7 +205,7 @@ fn battery_health() -> Result<i32, String> {
         .parse()
         .map_err(|_| "Could not parse battery capacity".to_string())?;
 
-    let mah = mah / 1000.0;
+    let mah = mah / 1000.0; //mAh from uAh
 
     let capav: f64 = capav
         .trim()
@@ -167,9 +217,12 @@ fn battery_health() -> Result<i32, String> {
         .parse()
         .map_err(|_| "Could not parse original battery capacity".to_string())?;
 
-    let original_mah = original_mah / 1000.0;
-    let current = (mah / capav) * 100.0;
-    let health = (current / original_mah) * 100.0;
+    //Original mAh seems to be inaccurate... for some reason. Round it up to a known factory default
+    let original_mah = original_mah / 1000.0; //Returned in uAh not mAh; convert
+    let accurate = original_mah_round(original_mah);
 
-    Ok(health.round() as i32)
+    let current = (mah / capav) * 100.0; 
+    let health = (current / accurate) * 100.0; //Get % from 0.xx
+
+    Ok((health.round() as i32).clamp(0, 100))
 }

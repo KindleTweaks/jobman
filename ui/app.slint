@@ -2,6 +2,8 @@ import { Card } from "card.slint";
 import { Button } from "button.slint";
 import { UpdateBlocking } from "pages/update-blocking.slint";
 import { BatteryHealth } from "pages/battery-health.slint";
+import { EnvironmentUpdate } from "pages/environment-update.slint";
+import { Background } from "background.slint";
 
 /*
     This project scales relative to root.height, 
@@ -12,7 +14,9 @@ export component AppWindow inherits Window {
     background: white;
 
     in property <bool> ota-status: false;
+    in property <bool> wifi-status: false;
     in property <int> battery-health: 100;
+    private property <bool> updating-env: false;
     private property <bool> ota-renaming: false;
     private property <string> view: "home";
     in-out property <bool> show-error: false;
@@ -20,6 +24,9 @@ export component AppWindow inherits Window {
 
     callback quit();
     callback toggle_ota();
+    callback update_environment();
+
+    Background {}
 
     //Header content
     Rectangle {
@@ -109,6 +116,7 @@ export component AppWindow inherits Window {
                root-height: root.height;
                title: "Environment Update";
                description: "Update the jailbreaking environment";
+               clicked => { root.view = "environment-update" }
             }
 
             Card {
@@ -131,6 +139,15 @@ export component AppWindow inherits Window {
             ota-renaming <=> root.ota-renaming;
             toggle-ota => {
                 root.toggle_ota();
+            }
+        }
+
+        if view == "environment-update": EnvironmentUpdate {
+            root-height: root.height;
+            wifi-status: root.wifi-status;
+            updating-env <=> root.updating-env;
+            update-environment => {
+                root.update_environment();
             }
         }
 
@@ -195,6 +212,7 @@ export component AppWindow inherits Window {
                             clicked => {
                                 root.show-error = false;
                                 root.ota-renaming = false; 
+                                root.updating-env = false;
                             }
                         }
                     }
