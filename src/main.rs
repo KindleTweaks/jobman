@@ -22,6 +22,9 @@ fn main() {
     #[cfg(all(target_os = "linux", target_arch = "arm"))]
     backend.register_font_from_memory(BASKERVILLE).expect("Failed to Install Libre Baskerville!");
 
+    let version = env!("CARGO_PKG_VERSION");
+    app.set_jobman_version(version.into());
+
     app.set_ota_status(ota_status());
     app.set_wifi_status(wifi_status());
     match battery_health() {

@@ -13,6 +13,7 @@ import { Background } from "background.slint";
 export component AppWindow inherits Window {
     background: white;
 
+    in property <string> jobman-version: "1.0.0";
     in property <bool> ota-status: false;
     in property <bool> wifi-status: false;
     in property <int> battery-health: 100;
@@ -161,7 +162,7 @@ export component AppWindow inherits Window {
         x: 0;
         y: root.height * 0.95;
         width: parent.width;
-        text: "Made by KindleTweaks";
+        text: "Made by KindleTweaks | v" + root.jobman-version;
         font-size: root.width * 0.03;
         color: #4b5563;
         horizontal-alignment: center;
