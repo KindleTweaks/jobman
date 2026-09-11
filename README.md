@@ -7,7 +7,7 @@
 
 *Like [my](https://penguins184.xyz/) work? Consider donating or just starring my repo! :)*
 
-<img width="300" height="430" alt="image" src="https://github.com/user-attachments/assets/853365e6-0291-448d-8c64-a41b1deb9e3e" />
+<img width="325" height="500" alt="image" src="https://github.com/user-attachments/assets/33735992-92e7-41f7-8dd7-dbf59b76c9f8" />
 
 ## Features
 
