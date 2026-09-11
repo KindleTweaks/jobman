@@ -71,7 +71,7 @@ export component AppWindow inherits Window {
 
     VerticalLayout {
         height: root.height * 0.05;
-        y: root.height * 0.09;
+        y: root.height * 0.12;
         alignment: center;
         spacing: root.height * 0.015; 
 
@@ -100,10 +100,10 @@ export component AppWindow inherits Window {
     Rectangle {
         x: root.width * 0.05; //Left margin 
         width: root.width * 0.9; //100% - 5% ^ - 5%.
-        y: root.height * 0.4;
+        y: root.height * 0.42;
 
         if view == "home": VerticalLayout {
-            spacing: root.height * 0.02; 
+            spacing: root.height * 0.01; 
 
             Card {
                root-height: root.height;

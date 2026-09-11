@@ -14,7 +14,7 @@ export component Card {
             border-color: black;
             border-width: 2px;
             border-radius: 12px;
-            height: root-height * 0.1; 
+            height: root-height * 0.09; 
             background: card-touch.pressed ? #cccccc : white;
 
             HorizontalLayout {
@@ -24,6 +24,7 @@ export component Card {
 
                 VerticalLayout {
                     padding-top: root-height * 0.012; 
+                    spacing: root-height * -0.01;
 
                     Text {
                         font-size: root-height * 0.03;

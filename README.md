@@ -9,6 +9,18 @@
 
 <img width="300" height="430" alt="image" src="https://github.com/user-attachments/assets/853365e6-0291-448d-8c64-a41b1deb9e3e" />
 
+## Features
+
+- Current:
+    - Update blocking/unblocking
+    - Battery health estimates
+    - Environment updates
+    - Self-updater
+- Planned:
+    - USBNet SSH
+    - Update sideloading (akin to Magisk sideload to inactive slot)
+    - UI for mounting root overlays on reboot (rootless)
+
 ## Building
 
 Great thanks to [slint-kindle-backend](https://github.com/sverrejb/slint-kindle-backend).
