@@ -38,7 +38,7 @@ To install, run the following in the search bar (one at a time):
 - 5.19.2 KT5
 - 5.20.1, 5.19.2 KT6
 - 5.16.21, 5.18.1.1.1 PW4
-- 5.20.1 PW6
+- 5.20.1, 5.19.2 PW6
 - 5.17.1.0.3 PW5
 - 5.20.1 KS1
 - 5.20.1 CS
