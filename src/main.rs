@@ -329,7 +329,7 @@ fn update_env() -> Result<(), String> {
 }
 
 fn original_mah_round(rough: f64) -> f64 {
-    let battery_intervals: Vec<f64> = vec![1350.0, 1300.0, 890.0, 245.0, 1000.0, 1500.0, 900.0, 1130.0, 1700.0, 1040.0, 3000.0, 1900.0, 2310.0, 4000.0];
+    let battery_intervals: Vec<f64> = vec![1350.0, 1300.0, 890.0, 245.0, 1000.0, 1500.0, 900.0, 1145.0, 1700.0, 1040.0, 3000.0, 1900.0, 2310.0, 4000.0];
     let max_interval = battery_intervals.iter().copied().max_by(f64::total_cmp).unwrap_or(0.0); //In case retrieved mAh is invalid/faulty/new device comes out, round down to the largest without failing
 
     battery_intervals
@@ -342,21 +342,23 @@ fn original_mah_round(rough: f64) -> f64 {
 
 fn battery_health() -> Result<i32, String> {
     if recovery_mode().is_some() {
-        return Ok(100) //Don't run commands on app launch in recovery environment -- will fail anyway
+        return Ok(-1) //Don't run commands on app launch in recovery environment -- will fail anyway
     }
 
     let mah = sh("gasgauge-info -m", "Failed to retrieve battery mAh")?;
     let original_mah = read_path("/sys/class/power_supply/*bat*/charge_full_design")?;
     let capav = lipc_get("powerd", "battLevel")?;
 
-    let mah: f64 = mah
+    let mut mah: f64 = mah
         .split_whitespace()
         .next() //["num", "mAh"] <- first item (capacity)
         .ok_or("Could not parse battery capacity")?
         .parse()
         .map_err(|_| "Could not parse battery capacity".to_string())?;
 
-    let mah = mah / 1000.0; //mAh from uAh
+    if mah > 100_000.0 { 
+        mah = mah / 1000.0; //mAh from uAh. KOA3 returns mAh directly, for some reason.
+    }
 
     let capav: f64 = capav
         .trim()
