@@ -42,6 +42,7 @@ To install, run the following in the search bar (one at a time):
 - 5.17.1.0.3 PW5
 - 5.20.1 KS1
 - 5.20.1 CS
+- 5.18.2.1.1 KOA3
 
 ## Building
 
