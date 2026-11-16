@@ -1,7 +1,7 @@
 import { Button } from "../button.slint";
+import { Page } from "../page.slint";
 
-export component SSHUsbNet inherits Rectangle {
-    in property <length> root-height;
+export component SSHUsbNet inherits Page {
     in property <string> usb-ssh-ip: "N/A";
     in property <string> wifi-ssh-ip: "N/A";
     in property <string> ssh-password: "N/A";
@@ -15,42 +15,41 @@ export component SSHUsbNet inherits Rectangle {
     callback wifi-ssh-toggle();
 
     VerticalLayout {
-        height: root-height * 0.27;
-        y: root.usb-ssh-status || root.wifi-ssh-status ? root-height * 0.12 : root-height * 0.07;
         alignment: center;
-        spacing: root-height * 0.02;
+        spacing: root.root-height * 0.02;
 
-        Text {
-            color: black;
-            wrap: word-wrap;
+        StyledText {
+            default-color: black;
             width: 100%;
-            font-size: root-height * 0.027;
-            font-family: "Inter";
+            default-font-size: root.root-height * 0.027;
+            default-font-family: "Inter";
             horizontal-alignment: center;
             vertical-alignment: center;
-            text: root.usb-ssh-status || root.wifi-ssh-status ? "SSH networking is currently enabled!" : "SSH networking is currently disabled.";
+            text: (root.usb-ssh-status || root.wifi-ssh-status)
+            ? @markdown("SSH networking is currently **enabled!**")
+            : @markdown("SSH networking is currently **disabled.**");
         }
 
         HorizontalLayout {
             alignment: center;
 
             VerticalLayout {
-                spacing: root-height * 0.02;
+                spacing: root.root-height * 0.02;
 
                 if root.wifi-ssh-status == false: Button {
-                    root-height: root-height;
+                    root-height: root.root-height;
                     text: root.usb-ssh-status ? "Disable USB SSH" : "Enable USB SSH";
-                    width: root-height * 0.5;
+                    width: root.root-height * 0.5;
                     clicked => { 
                         usb-ssh-toggle();
                     }
                 }
 
                 if root.usb-ssh-status == false: Button {
-                    root-height: root-height;
+                    root-height: root.root-height;
                     text: root.wifi-status || !root.boot-mode ? (root.wifi-ssh-status ? "Disable Wi-Fi SSH" : "Enable Wi-Fi SSH") : "Wi-Fi is Disabled!";
                     disabled: !root.wifi-status || root.boot-mode;
-                    width: root-height * 0.5;
+                    width: root.root-height * 0.5;
                     clicked => {
                         wifi-ssh-toggle();
                     }
@@ -70,7 +69,6 @@ export component SSHUsbNet inherits Rectangle {
             font-family: "Inter";
             horizontal-alignment: center;
             vertical-alignment: center;
-            font-weight: 700;
         }
     }
 }

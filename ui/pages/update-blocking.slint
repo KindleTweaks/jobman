@@ -1,36 +1,35 @@
 import { Button } from "../button.slint";
+import { Page } from "../page.slint";
 
-export component UpdateBlocking inherits Rectangle {
+export component UpdateBlocking inherits Page {
     in-out property <bool> ota-renaming: false;
     in property <bool> ota-status: false;
-    in property <length> root-height;
 
     callback toggle-ota();
 
-    VerticalLayout {
-        height: root-height * 0.27;
-        y: root-height * 0.1;
+    layout := VerticalLayout {
         alignment: center;
-        spacing: root-height * 0.02;
+        spacing: root.root-height * 0.02;
 
-        Text {
-            color: black;
-            wrap: word-wrap;
+        StyledText {
+            default-color: black;
             width: 100%;
-            font-size: root-height * 0.027;
-            font-family: "Inter";
+            default-font-size: root.root-height * 0.027;
+            default-font-family: "Inter";
             horizontal-alignment: center;
             vertical-alignment: center;
-            text: root.ota-renaming ? "Please wait..." : (root.ota-status ? "OTA updates are currently enabled." : "OTA updates are currently disabled.");
+            text: root.ota-renaming ? @markdown("Please wait...") : (root.ota-status
+                ? @markdown("OTA updates are currently **enabled**.")
+                : @markdown("OTA updates are currently **disabled**."));
         }
 
         HorizontalLayout {
             alignment: center;
 
             Button {
-                root-height: root-height;
+                root-height: root.root-height;
                 text: root.ota-status ? "Disable OTA Updates" : "Enable OTA Updates";
-                width: root-height * 0.5;
+                width: root.root-height * 0.5;
                 disabled: root.ota-renaming;
                 clicked => {
                     root.ota-renaming = true;

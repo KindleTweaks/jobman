@@ -89,7 +89,18 @@ export component AppWindow inherits Window {
         }
     }
 
-    VerticalLayout {
+    if view != "home": StyledText {
+        x: root.width * 0.05;
+        y: root.height * 0.035;
+        width: self.preferred-width;
+        horizontal-alignment: left;
+        text: @markdown("<u>\{view}</u>");
+        default-font-family: "Libre Baskerville";
+        default-font-size: root.width * 0.06;
+        default-color: black;
+    }
+
+    if view == "home": VerticalLayout {
         height: root.height * 0.05;
         y: root.height * 0.12;
         alignment: center;
@@ -118,26 +129,27 @@ export component AppWindow inherits Window {
 
     //Main content
     Rectangle {
-        x: root.width * 0.05; //Left margin 
-        width: root.width * 0.9; //100% - 5% ^ - 5%.
+        x: root.width * 0.05;
         y: root.height * 0.37;
+        width: root.width * 0.9;
+        height: root.height - self.y - (root.height * 0.25);
 
         if view == "home": VerticalLayout {
-            y: root.height * 0;
+            y: 0;
             spacing: root.height * 0.01; 
 
             if !root.boot-mode: Card {
                root-height: root.height;
                title: "Update Blocking";
                description: "Manage the enabling & disabling of OTA binaries";
-               clicked => { root.view = "update-blocking" }
+               clicked => { root.view = "Update Blocking" }
             }
 
             Card {
                 root-height: root.height;
                 title: "SSH & USB Networking";
                 description: root.boot-mode ? "Start an emergency SSH over USB server" : "Start an SSH server over USB or Wi-Fi";
-                clicked => { root.view = "ssh-usb-net" }
+                clicked => { root.view = "SSH & USB Networking" }
             }
             
             if root.boot-mode: Card {
@@ -173,25 +185,25 @@ export component AppWindow inherits Window {
                root-height: root.height;
                title: "Environment Update";
                description: "Update the jailbreaking environment";
-               clicked => { root.view = "environment-update" }
+               clicked => { root.view = "Environment Update" }
             }
 
             if !root.boot-mode: Card {
                root-height: root.height;
                title: "Battery Health";
                description: "Automatic battery checking utility";
-               clicked => { root.view = "battery-health" }
+               clicked => { root.view = "Battery Health" }
             }
 
             if !root.boot-mode: Card {
                root-height: root.height;
                title: "Recovery Management";
                description: "Toggle the experimental Jobman recovery system";
-               clicked => { root.view = "recovery-management" }
+               clicked => { root.view = "Recovery Management" }
             }
         }
 
-        if view == "update-blocking": UpdateBlocking {
+        if view == "Update Blocking": UpdateBlocking {
             root-height: root.height;
             ota-status: root.ota-status;
             ota-renaming <=> root.ota-renaming;
@@ -200,7 +212,7 @@ export component AppWindow inherits Window {
             }
         }
 
-        if view == "ssh-usb-net": SSHUsbNet {
+        if view == "SSH & USB Networking": SSHUsbNet {
             root-height: root.height;
             usb-ssh-ip: root.usb-ssh-ip;
             wifi-ssh-ip: root.wifi-ssh-ip;
@@ -217,7 +229,7 @@ export component AppWindow inherits Window {
             }
         }
 
-        if view == "environment-update": EnvironmentUpdate {
+        if view == "Environment Update": EnvironmentUpdate {
             root-height: root.height;
             wifi-status: root.wifi-status;
             updating-env <=> root.updating-env;
@@ -226,12 +238,12 @@ export component AppWindow inherits Window {
             }
         }
 
-        if view == "battery-health": BatteryHealth {
+        if view == "Battery Health": BatteryHealth {
             root-height: root.height;
             battery-health: root.battery-health;
         }
 
-        if view == "recovery-management": RecoveryManagement {
+        if view == "Recovery Management": RecoveryManagement {
             root-height: root.height;
             recovery-installation-status: root.recovery-installation-status;
             recovery-toggle => {

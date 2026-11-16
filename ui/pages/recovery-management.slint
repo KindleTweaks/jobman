@@ -1,22 +1,20 @@
 import { Button } from "../button.slint";
+import { Page } from "../page.slint";
 
-export component RecoveryManagement inherits Rectangle {
-    in property <length> root-height;
+export component RecoveryManagement inherits Page {
     in property <bool> recovery-installation-status;
 
     callback recovery-toggle();
 
     VerticalLayout {
-        height: root-height * 0.27;
-        y: root-height * 0.07;
         alignment: center;
-        spacing: root-height * 0.02;
+        spacing: root.root-height * 0.02;
 
         Text {
             color: black;
             wrap: word-wrap;
             width: 100%;
-            font-size: root-height * 0.027;
+            font-size: root.root-height * 0.027;
             font-family: "Inter";
             horizontal-alignment: center;
             vertical-alignment: center;
@@ -27,9 +25,9 @@ export component RecoveryManagement inherits Rectangle {
             alignment: center;
 
             Button {
-                root-height: root-height;
+                root-height: root.root-height;
                 text: root.recovery-installation-status ? "Remove Recovery" : "Install Recovery";
-                width: root-height * 0.5;
+                width: root.root-height * 0.5;
                 clicked => {
                     recovery-toggle();
                 }

@@ -1,0 +1,18 @@
+export component Page inherits Rectangle {
+    in property <length> root-height;
+
+    border-width: 2px;
+    border-color: black;
+    border-radius: root-height * 0.012;
+    background: white;
+
+    height: content-layout.preferred-height + root-height * 0.05; //Padding
+
+    content-layout := VerticalLayout {
+        alignment: center;
+        padding: root-height * 0.03;
+        spacing: root-height * 0.02;
+
+        @children
+    }
+}
