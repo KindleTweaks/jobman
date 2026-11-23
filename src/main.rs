@@ -427,15 +427,31 @@ fn default_password() -> Option<String> {
     }
 }
 
-fn usb_connected() -> Result<(), String>  {
-    let err = "Please plug your Kindle into a computer before attempting to disable USB SSH!";
-    let status = read_path("/sys/class/udc/*.usb/state")?;
-    
-    if status.trim() == "configured" {
-        Ok(())
-    } else {
-        Err(err.to_string())
+fn usb_connected(udc_dir: &Path) -> Result<(), String> {
+    let controllers = fs::read_dir(udc_dir).map_err(|err| {
+        format!(
+            "Failed to list USB device controllers in {}: {err}",
+            udc_dir.display()
+        )
+    })?;
+    let mut read_error = None;
+
+    for controller in controllers {
+        let state = controller.and_then(|entry| fs::read_to_string(entry.path().join("state")));
+        match state {
+            Ok(state) if state.trim() == "configured" => return Ok(()),
+            Ok(_) => {}
+            Err(err) => {
+                read_error.get_or_insert(err);
+            }
+        }
     }
+
+    if let Some(err) = read_error {
+        return Err(format!("Failed to read USB device controller state: {err}"));
+    }
+
+    Err("Please plug your Kindle into a computer before attempting to disable USB SSH!".to_string())
 }
 
 static mut VOLUMD_STARTED: bool = false; //Rust is so strange
@@ -500,7 +516,7 @@ fn enable_usb_ssh() -> Result<(), String> {
 }
 
 fn disable_usb_ssh() -> Result<(), String> {
-    usb_connected()?; //Prevents kernel panics
+    usb_connected(Path::new("/sys/class/udc"))?; //Prevents kernel panics
 
     sh("ifconfig usb0 down", "Failed to bring usb0 interface down")?;
 
